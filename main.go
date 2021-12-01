@@ -1,13 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"time"
+	"github.com/creedbeats/i-connect.git/api/users"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
 )
 
+func setupRoutes (app *fiber.App) {
+	app.Get("/v1/users", users.ListUsers)
+	app.Post("/v1/users", users.CreateUser)
+	app.Get("/v1/users/:id", users.GetUser)
+	app.Put("/v1/users/:id", users.UpdateUser)
+	app.Delete("/v1/users/:id", users.DeleteUser)
+} 
+
 func main() {
-  for {
-    fmt.Println("Hello World")
-    time.Sleep(time.Second * 3)
-  }
+	app := fiber.New()
+
+	setupRoutes(app)
+
+	log.Fatal(app.Listen(":8080"))
 }

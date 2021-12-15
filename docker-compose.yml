@@ -5,37 +5,43 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
-      - "5432:5432"
+      - ${DB_PORT}:5432
     volumes:
-      - data:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
     networks:
-      - default
+      - i-connect
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_container
     env_file:
       - .env
     depends_on:
-      - fullstack-postgres
+      - database
     ports:
-      - "5050:80"
+      - 5050:80
+    networks:
+      - i-connect
     restart: unless-stopped
   api:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: api/Dockerfile
     env_file:
       - .env
     depends_on:
       - database
     networks:
-      - default
+      - i-connect
     ports:
-    - "8080:8080"
+      - ${API_PORT}:${API_PORT}
     volumes:
       - ./api:/opt/app/api
 networks:
-  default:
+  i-connect:
 volumes:
-  data: {}
+  data:

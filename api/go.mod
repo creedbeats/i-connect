@@ -1,6 +1,6 @@
 module github.com/creedbeats/i-connect.git/api
 
-go 1.17
+go 1.16
 
 require (
 	github.com/badoux/checkmail v1.2.1
@@ -11,11 +11,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.3 // indirect
+	github.com/google/uuid v1.3.0
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.31.0 // indirect
-	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
+	gorm.io/driver/postgres v1.2.3
 )

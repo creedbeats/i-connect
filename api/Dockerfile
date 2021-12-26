@@ -1,10 +1,12 @@
-FROM golang:1.16 as base
-
-FROM base as dev
-
-RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+FROM cosmtrek/air as dev
 WORKDIR /opt/app/api
-COPY api/go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
+COPY . .
+CMD air
 
-CMD ["air"]
+FROM golang:1.16
+WORKDIR /opt/app/api
+COPY go.mod go.sum ./
+RUN go mod download
+CMD go build .

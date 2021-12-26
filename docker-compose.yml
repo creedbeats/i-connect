@@ -27,8 +27,7 @@ services:
     restart: unless-stopped
   api:
     build:
-      context: ./
-      dockerfile: api/Dockerfile
+      context: ./api
     env_file:
       - .env
     depends_on:

@@ -20,15 +20,11 @@ func ListUsers(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) (err error) {
 	db := database.DB
 	user := models.User{}
-	err = c.BodyParser(&user)
-	if err != nil {
+	if err = c.BodyParser(&user); err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
-	// Add a uuid to the user
-	user.ID = uuid.New()
 	// Create the User and return error if encountered
-	_, err = user.Create(db)
-	if err != nil {
+	if err = user.Create(db); err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create user", "data": err})
 	}
 	return c.JSON(user)
@@ -41,8 +37,7 @@ func GetUser(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
-	_, err = user.Get(db)
-	if err != nil {
+	if err = user.Get(db); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "The requested user could not be found", "data": err})
 	}
 	return c.JSON(user)
@@ -51,22 +46,20 @@ func GetUser(c *fiber.Ctx) (err error) {
 func UpdateUser(c *fiber.Ctx) (err error) {
 	db := database.DB
 	user := models.User{}
-	user.ID, err = uuid.Parse(c.Params("id"))
-	if err != nil {
+	
+	if user.ID, err = uuid.Parse(c.Params("id")); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "The requested user could not be found", "data": err})
 	}
-	_, err = user.Get(db)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "The requested user could not be found", "data": err})
-	}
-	err = c.BodyParser(&user)
-	if err != nil {
+	if err = c.BodyParser(&user); err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
-	var u *models.User
-	u, err = user.Update(db)
+	if err = user.Get(db); err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "The requested user could not be found", "data": err})
+	}
+	
+	err = user.Update(db)
 
-	return c.JSON(u)
+	return c.JSON(user)
 }
 
 func DeleteUser(c *fiber.Ctx) (err error) {

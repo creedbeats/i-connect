@@ -2,12 +2,9 @@ package models
 
 import (
 	"errors"
-	"html"
 	"log"
-	"strings"
 	"time"
 
-	"github.com/badoux/checkmail"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -30,9 +27,9 @@ func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func VerifyPassword(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-}
+// func VerifyPassword(hashedPassword, password string) error {
+// 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+// }
 
 func (u *User) BeforeSave(*gorm.DB) error {
 	hashedPassword, err := Hash(u.Password)
@@ -43,107 +40,98 @@ func (u *User) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
-func (u *User) Prepare() {
+// func (u *User) Prepare() {
+// 	u.ID = uuid.New()
+// 	u.Nickname = html.EscapeString(strings.TrimSpace(u.Nickname))
+// 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
+// 	u.CreatedAt = time.Now()
+// 	u.UpdatedAt = time.Now()
+// }
+
+// func (u *User) Validate(action string) error {
+// 	switch strings.ToLower(action) {
+// 	case "update":
+// 		if u.Nickname == "" {
+// 			return errors.New("Required Nickname")
+// 		}
+// 		if u.Password == "" {
+// 			return errors.New("Required Password")
+// 		}
+// 		if u.Email == "" {
+// 			return errors.New("Required Email")
+// 		}
+// 		if err := checkmail.ValidateFormat(u.Email); err != nil {
+// 			return errors.New("Invalid Email")
+// 		}
+
+// 		return nil
+// 	case "login":
+// 		if u.Password == "" {
+// 			return errors.New("Required Password")
+// 		}
+// 		if u.Email == "" {
+// 			return errors.New("Required Email")
+// 		}
+// 		if err := checkmail.ValidateFormat(u.Email); err != nil {
+// 			return errors.New("Invalid Email")
+// 		}
+// 		return nil
+
+// 	default:
+// 		if u.Nickname == "" {
+// 			return errors.New("Required Nickname")
+// 		}
+// 		if u.Password == "" {
+// 			return errors.New("Required Password")
+// 		}
+// 		if u.Email == "" {
+// 			return errors.New("Required Email")
+// 		}
+// 		if err := checkmail.ValidateFormat(u.Email); err != nil {
+// 			return errors.New("Invalid Email")
+// 		}
+// 		return nil
+// 	}
+// }
+
+func (u *User) Create(db *gorm.DB) (err error) {
+	// Add a uuid to the user
 	u.ID = uuid.New()
-	u.Nickname = html.EscapeString(strings.TrimSpace(u.Nickname))
-	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
+	err = db.Create(&u).Error
+	return
 }
 
-func (u *User) Validate(action string) error {
-	switch strings.ToLower(action) {
-	case "update":
-		if u.Nickname == "" {
-			return errors.New("Required Nickname")
-		}
-		if u.Password == "" {
-			return errors.New("Required Password")
-		}
-		if u.Email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("Invalid Email")
-		}
-
-		return nil
-	case "login":
-		if u.Password == "" {
-			return errors.New("Required Password")
-		}
-		if u.Email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("Invalid Email")
-		}
-		return nil
-
-	default:
-		if u.Nickname == "" {
-			return errors.New("Required Nickname")
-		}
-		if u.Password == "" {
-			return errors.New("Required Password")
-		}
-		if u.Email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("Invalid Email")
-		}
-		return nil
+func (u *User) List(db *gorm.DB) (users *[]User, err error) {
+	if err = db.Model(&User{}).Limit(100).Find(&users).Error; err != nil {
+		return nil, err
 	}
+	return
 }
 
-func (u *User) Create(db *gorm.DB) (*User, error) {
-	err := db.Debug().Create(&u).Error
-	if err != nil {
-		return &User{}, err
-	}
-	return u, nil
-}
-
-func (u *User) List(db *gorm.DB) (*[]User, error) {
-	users := []User{}
-	err := db.Debug().Model(&User{}).Limit(100).Find(&users).Error
-	if err != nil {
-		return &[]User{}, err
-	}
-	return &users, err
-}
-
-func (u *User) Get(db *gorm.DB) (*User, error) {
-	err := db.Debug().Model(User{}).Where("id = ?", u.ID).Take(&u).Error
-	if err != nil {
-		return &User{}, err
+func (u *User) Get(db *gorm.DB) (err error) {
+	if err = db.Model(User{}).Where("id = ?", u.ID).Take(&u).Error; err != nil {
+		return
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return &User{}, errors.New("User Not Found")
+		return errors.New("User Not Found")
 	}
-	return u, err
+	return
 }
 
-func (u *User) Update(db *gorm.DB) (*User, error) {
+func (u *User) Update(db *gorm.DB) (err error) {
 	// To hash the password
-	err := u.BeforeSave(db)
-	if err != nil {
+	if err = u.BeforeSave(db); err != nil {
 		log.Fatal(err)
 	}
-	db = db.Debug().Model(&User{}).Where("id = ?", u.ID).Save(&u)
-	if db.Error != nil {
-		return &User{}, db.Error
-	}
-
-	return u, nil
+	err = db.Model(&User{}).Where("id = ?", u.ID).Save(&u).Error
+	return
 }
 
 func (u *User) Delete(db *gorm.DB) (int64, error) {
 	if u.ID == uuid.Nil {
 		return 0, nil
 	}
-	db = db.Debug().Delete(&u)
+	db = db.Delete(&u)
 
 	if db.Error != nil {
 		return 0, db.Error

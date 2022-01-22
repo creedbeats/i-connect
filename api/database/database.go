@@ -28,6 +28,6 @@ func Connect() {
 	DB.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("Running Migrations")
 	// Add Migrations
-	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.User{}, &models.Organization{})
 	log.Println("Database Migrated")
 }

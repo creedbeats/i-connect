@@ -13,21 +13,10 @@ services:
       - ./data:/var/lib/postgresql/data
     networks:
       - i-connect
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_container
-    env_file:
-      - .env
-    depends_on:
-      - database
-    ports:
-      - 5050:80
-    networks:
-      - i-connect
-    restart: unless-stopped
   api:
     build:
       context: ./api
+      target: dev
     env_file:
       - .env
     depends_on:
@@ -37,7 +26,19 @@ services:
     ports:
       - ${API_PORT}:${API_PORT}
     volumes:
-      - ./api:/opt/app/api
+      - ./api:/app
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin_container
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - 5050:80
+  #   networks:
+  #     - i-connect
+  #   restart: unless-stopped
 networks:
   i-connect:
 volumes:

@@ -13,12 +13,9 @@ type Organization struct {
 	Phone string `json:"phone" gorm:"size:11"`
 }
 
-func (org *Organization) Create(db *gorm.DB) (*Organization, error) {
-	err := db.Create(&org).Error
-	if err != nil {
-		return &Organization{}, err
-	}
-	return org, nil
+func (org *Organization) Create(db *gorm.DB) (err error) {
+	err = db.Create(&org).Error
+	return
 }
 
 func (org *Organization) List(db *gorm.DB) (*[]Organization, error) {
@@ -30,34 +27,27 @@ func (org *Organization) List(db *gorm.DB) (*[]Organization, error) {
 	return &organizations, err
 }
 
-func (org *Organization) Get(db *gorm.DB) (*Organization, error) {
-	err := db.Model(Organization{}).Where("id = ?", org.ID).Take(&org).Error
-	if err != nil {
-		return &Organization{}, err
-	}
+func (org *Organization) Get(db *gorm.DB) (err error) {
+	err = db.Take(&org).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return &Organization{}, errors.New("Organization Not Found")
+		return errors.New("Organization Not Found")
 	}
-	return org, err
+	return
 }
 
-func (org *Organization) Update(db *gorm.DB) (*Organization, error) {
-	db = db.Model(&Organization{}).Where("id = ?", org.ID).Save(&org)
-	if db.Error != nil {
-		return &Organization{}, db.Error
+func (org *Organization) Update(db *gorm.DB) (err error) {
+	if err = org.Get(db); err != nil {
+		return
 	}
-
-	return org, nil
+	err = db.Where("id = ?", org.ID).Save(&org).Error
+	return
 }
 
-func (org *Organization) Delete(db *gorm.DB) (int64, error) {
+func (org *Organization) Delete(db *gorm.DB) (err error) {
 	if org.ID == 0 {
-		return 0, nil
+		return
 	}
 	db = db.Delete(&org)
-
-	if db.Error != nil {
-		return 0, db.Error
-	}
-	return db.RowsAffected, nil
+	err = db.Error
+	return
 }

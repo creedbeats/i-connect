@@ -109,9 +109,7 @@ func (u *User) List(db *gorm.DB) (users *[]User, err error) {
 }
 
 func (u *User) Get(db *gorm.DB) (err error) {
-	if err = db.Model(User{}).Where("id = ?", u.ID).Take(&u).Error; err != nil {
-		return
-	}
+	err = db.Take(&u).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("User Not Found")
 	}
@@ -127,14 +125,11 @@ func (u *User) Update(db *gorm.DB) (err error) {
 	return
 }
 
-func (u *User) Delete(db *gorm.DB) (int64, error) {
+func (u *User) Delete(db *gorm.DB) (err error) {
 	if u.ID == uuid.Nil {
-		return 0, nil
+		return
 	}
 	db = db.Delete(&u)
-
-	if db.Error != nil {
-		return 0, db.Error
-	}
-	return db.RowsAffected, nil
+	err = db.Error
+	return
 }

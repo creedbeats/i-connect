@@ -28,6 +28,9 @@ func (org *Organization) List(db *gorm.DB) (*[]Organization, error) {
 }
 
 func (org *Organization) Get(db *gorm.DB) (err error) {
+	if org.ID == 0 {
+		return errors.New("no_id")
+	}
 	err = db.Take(&org).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("Organization Not Found")
@@ -36,6 +39,9 @@ func (org *Organization) Get(db *gorm.DB) (err error) {
 }
 
 func (org *Organization) Update(db *gorm.DB) (err error) {
+	if org.ID == 0 {
+		return errors.New("no_id")
+	}
 	if err = org.Get(db); err != nil {
 		return
 	}
@@ -45,7 +51,7 @@ func (org *Organization) Update(db *gorm.DB) (err error) {
 
 func (org *Organization) Delete(db *gorm.DB) (err error) {
 	if org.ID == 0 {
-		return
+		return errors.New("no_id")
 	}
 	db = db.Delete(&org)
 	err = db.Error

@@ -11,16 +11,18 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID      `json:"id" gorm:"type:uuid;primary_key"`
-	Nickname  string         `json:"nickName"`
-	FirstName string         `json:"firstName" gorm:"not null"`
-	LastName  string         `json:"lastName" gorm:"not null"`
-	Email     string         `json:"email" gorm:"size:100;not null;unique"`
-	Phone     string         `json:"phone" gorm:"size:11"`
-	Password  string         `json:"password" gorm:"size:100;not null;"`
-	CreatedAt time.Time      `json:"createdAt,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-	UpdatedAt time.Time      `json:"updatedAt,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt,omitempty"`
+	ID            uuid.UUID      `json:"id" gorm:"type:uuid;primary_key"`
+	Nickname      string         `json:"nickName"`
+	FirstName     string         `json:"firstName" gorm:"not null"`
+	LastName      string         `json:"lastName" gorm:"not null"`
+	Email         string         `json:"email" gorm:"size:100;not null;unique"`
+	Phone         string         `json:"phone" gorm:"size:11"`
+	Password      string         `json:"password" gorm:"size:100;not null;"`
+	CreatedAt     time.Time      `json:"createdAt,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+	UpdatedAt     time.Time      `json:"updatedAt,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+	DeletedAt     gorm.DeletedAt `json:"deletedAt,omitempty"`
+	Organizations []Organization
+	Posts         []Post
 }
 
 func Hash(password string) ([]byte, error) {

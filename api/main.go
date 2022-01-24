@@ -5,7 +5,7 @@ import (
 
 	"github.com/creedbeats/i-connect.git/api/config"
 	"github.com/creedbeats/i-connect.git/api/database"
-	handlers "github.com/creedbeats/i-connect.git/api/handlers/user"
+	handlers "github.com/creedbeats/i-connect.git/api/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )

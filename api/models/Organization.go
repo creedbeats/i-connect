@@ -3,14 +3,16 @@ package models
 import (
 	"errors"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Organization struct {
 	gorm.Model
-	Name  string `json:"name"`
-	Email string `json:"email" gorm:"size:100;not null;unique"`
-	Phone string `json:"phone" gorm:"size:11"`
+	ID    uuid.UUID `json:"id" gorm:"type:uuid;primary_key"`
+	Name  string    `json:"name"`
+	Email string    `json:"email" gorm:"size:100;not null;unique"`
+	Phone string    `json:"phone" gorm:"size:11"`
 }
 
 func (org *Organization) Create(db *gorm.DB) (err error) {
@@ -28,7 +30,7 @@ func (org *Organization) List(db *gorm.DB) (*[]Organization, error) {
 }
 
 func (org *Organization) Get(db *gorm.DB) (err error) {
-	if org.ID == 0 {
+	if org.ID == uuid.Nil {
 		return errors.New("no_id")
 	}
 	err = db.Take(&org).Error
@@ -39,7 +41,7 @@ func (org *Organization) Get(db *gorm.DB) (err error) {
 }
 
 func (org *Organization) Update(db *gorm.DB) (err error) {
-	if org.ID == 0 {
+	if org.ID == uuid.Nil {
 		return errors.New("no_id")
 	}
 	if err = org.Get(db); err != nil {
@@ -50,7 +52,7 @@ func (org *Organization) Update(db *gorm.DB) (err error) {
 }
 
 func (org *Organization) Delete(db *gorm.DB) (err error) {
-	if org.ID == 0 {
+	if org.ID == uuid.Nil{
 		return errors.New("no_id")
 	}
 	db = db.Delete(&org)
